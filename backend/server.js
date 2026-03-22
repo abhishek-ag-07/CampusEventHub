@@ -2,17 +2,31 @@ const express = require("express");
 const dotenv = require("dotenv");
 const connectDB = require("./config/db");
 const cors = require("cors");
-const passport = require('passport');
+const passport = require("passport");
+const helmet = require("helmet");
 
+// Load env variables
 dotenv.config();
+
+// Connect DB
 connectDB();
 
 const app = express();
-app.use(express.json());
-app.use(cors());
 
-// initialize passport for social logins
-require('./config/passport');
+// Middleware
+app.use(express.json());
+app.use(helmet());
+
+// CORS configuration (IMPORTANT for Vercel frontend)
+app.use(
+  cors({
+    origin: process.env.FRONTEND_URL,
+    credentials: true,
+  })
+);
+
+// Initialize passport (for Google OAuth)
+require("./config/passport");
 app.use(passport.initialize());
 
 // Routes
@@ -23,33 +37,50 @@ const registrationRoutes = require("./routes/registrationRoutes");
 const notificationRoutes = require("./routes/notificationRoutes");
 const initReminderJob = require("./utils/reminderJob");
 
+// API Routes
 app.use("/api/auth", authRoutes);
-
-// Start scheduled jobs
-initReminderJob();
-
-// google oauth endpoints
-app.get(
-  '/api/auth/google',
-  passport.authenticate('google', { scope: ['profile', 'email'] })
-);
-
-app.get(
-  '/api/auth/google/callback',
-  passport.authenticate('google', { session: false, failureRedirect: '/login' }),
-  (req, res) => {
-    // `req.user` contains token & user object from strategy
-    // redirect back to frontend with token in query string
-    const frontend = process.env.FRONTEND_URL || 'http://localhost:3000';
-    res.redirect(`${frontend}/login?token=${req.user.token}`);
-  }
-);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/events", eventRoutes);
 app.use("/api/registrations", registrationRoutes);
 app.use("/api/notifications", notificationRoutes);
+
+// Static uploads
 app.use("/uploads", express.static("uploads"));
 
+// Start scheduled jobs
+initReminderJob();
+
+// Google OAuth Routes
+app.get(
+  "/api/auth/google",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
+app.get(
+  "/api/auth/google/callback",
+  passport.authenticate("google", {
+    session: false,
+    failureRedirect: `${process.env.FRONTEND_URL}/login`,
+  }),
+  (req, res) => {
+    try {
+      const frontend = process.env.FRONTEND_URL;
+
+      // Redirect with token
+      res.redirect(`${frontend}/auth/success?token=${req.user.token}`);
+    } catch (error) {
+      console.error("OAuth Error:", error);
+      res.redirect(`${process.env.FRONTEND_URL}/login`);
+    }
+  }
+);
+
+// Health check route (for testing deployment)
+app.get("/", (req, res) => {
+  res.send("API is running 🚀");
+});
+
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
