@@ -103,6 +103,7 @@ npm run dev
 cd frontend
 npm install
 npm run dev
+
 🔗 API Endpoints (Sample)
 Method	Endpoint	Description
 POST	/api/auth/register	Register user
@@ -110,6 +111,7 @@ POST	/api/auth/login	Login user
 GET	/api/events	Get all events
 POST	/api/events	Create event
 POST	/api/register	Register for event
+
 🚀 Deployment
 Frontend (Vercel)
 Import repo
@@ -121,7 +123,9 @@ Create Web Service
 Root directory: /backend
 Add environment variables
 Deploy
-📈 Future Enhancements
+
+---
+## 📈 Future Enhancements
 🔔 Real-time notifications
 💳 Payment integration
 🤖 AI-based recommendations
@@ -135,14 +139,16 @@ Scalable project structuring
 🤝 Contributing
 
 Contributions are welcome! Fork the repo and submit a PR.
+---
 
-📄 License
+### 📄 License
 
 MIT License
+---
 
-👨‍💻 Author
+### 👨‍💻 Author
 
 Abhishek Agarwal
-
+---
 
 If you like this project, give it a ⭐ on GitHub!
