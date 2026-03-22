@@ -54,7 +54,6 @@ CampusEventHub provides a centralized platform for colleges to host and manage  
 - REST APIs  
 - Multer (File Uploads)  
 
----
 
 ## 📂 Project Structure
 
@@ -80,8 +79,6 @@ CampusEventHub/
 │
 ├── README.md
 └── LICENSE
-
----
 
 ## ⚙️ Installation & Setup
 
