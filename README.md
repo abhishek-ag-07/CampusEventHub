@@ -97,12 +97,13 @@ MONGO_URI=your_mongodb_uri
 JWT_SECRET=your_secret_key
 
 Run backend:
+npm install
+npm start
 
-npm run dev
 🔹 Frontend Setup
 cd frontend
 npm install
-npm run dev
+npm start
 
 🔗 API Endpoints (Sample)
 Method	Endpoint	Description
