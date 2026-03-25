@@ -1,9 +1,8 @@
 import React, { createContext, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import API from "../utils/api";   // ✅ IMPORTANT
 
 export const AuthContext = createContext();
-
-const API_URL = process.env.REACT_APP_API || 'http://localhost:5000';
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
@@ -13,8 +12,7 @@ export function AuthProvider({ children }) {
 
   useEffect(() => {
     if (token) {
-      // fetch current user
-      fetch(`${API_URL}/api/auth/me`, {
+      fetch(`${API}/api/auth/me`, {
         headers: { Authorization: `Bearer ${token}` },
       })
         .then(res => {
@@ -37,56 +35,63 @@ export function AuthProvider({ children }) {
   }, [token]);
 
   const login = async (email, password) => {
-    const res = await fetch(`${API_URL}/api/auth/login`, {
+    const res = await fetch(`${API}/api/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
     });
+
     if (!res.ok) throw res;
+
     const data = await res.json();
     setToken(data.token);
     localStorage.setItem('token', data.token);
     setUser(data.user);
-    // redirect based on role
+
     if (data.user.role === 'super_admin') navigate('/super-admin');
     else if (data.user.role === 'admin') navigate('/admin');
     else navigate('/student');
   };
 
-  // helper used when a token is supplied directly (e.g. from OAuth callback)
   const loginWithToken = async (incomingToken) => {
     setToken(incomingToken);
     localStorage.setItem('token', incomingToken);
-    // fetch user so that we can redirect appropriately
+
     try {
-      const res = await fetch(`${API_URL}/api/auth/me`, {
+      const res = await fetch(`${API}/api/auth/me`, {
         headers: { Authorization: `Bearer ${incomingToken}` },
       });
+
       if (!res.ok) throw new Error('Failed to fetch user');
+
       const data = await res.json();
       setUser(data);
+
       if (data.role === 'super_admin') navigate('/super-admin');
       else if (data.role === 'admin') navigate('/admin');
       else navigate('/student');
+
     } catch (err) {
       console.error('Token login error', err);
-      // clear token if something goes wrong
       setToken(null);
       localStorage.removeItem('token');
     }
   };
 
   const register = async (payload) => {
-    const res = await fetch(`${API_URL}/api/auth/register`, {
+    const res = await fetch(`${API}/api/auth/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload),
     });
+
     if (!res.ok) throw res;
+
     const data = await res.json();
     setToken(data.token);
     localStorage.setItem('token', data.token);
     setUser(data.user);
+
     if (data.user.role === 'super_admin') navigate('/super-admin');
     else if (data.user.role === 'admin') navigate('/admin');
     else navigate('/student');
